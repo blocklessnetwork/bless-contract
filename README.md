@@ -1,1 +1,1 @@
-# bless-contract
+# bls-node-registration
