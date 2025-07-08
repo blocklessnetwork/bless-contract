@@ -18,7 +18,6 @@ pub mod bless_token {
     /// register function
     pub fn initial(ctx: Context<InitBlessToken>) -> Result<()> {
         let bump = ctx.bumps.bless_state;
-        ctx.accounts.init(bump)?;
-        Ok(())
+        ctx.accounts.init(bump)
     }
 }
