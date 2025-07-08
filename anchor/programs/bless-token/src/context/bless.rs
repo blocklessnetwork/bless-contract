@@ -170,11 +170,13 @@ impl<'info> InitBlessToken<'info> {
         Ok(())
     }
 
-    fn mint_to<'a, 'b, 'c>(
+    /// mint the token to the account.
+    /// signer_seeds is the signature.
+    fn mint_to(
         &mut self,
         to: AccountInfo<'info>,
         amount: u64,
-        signer_seeds: &'a [&'b [&'c [u8]]],
+        signer_seeds: &[&[&[u8]]],
     ) -> Result<()> {
         let cpi_ctx = CpiContext::new_with_signer(
             self.token_program.to_account_info(),

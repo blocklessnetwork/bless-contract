@@ -10,9 +10,11 @@ import { BlsClient } from "../src/client/client";
 import {
   Account,
   createMint,
+  getAccount,
   getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
 import { BlessTokenAccounts } from "../src/client/bless_token_client";
+import { expect } from "chai";
 
 describe("bless token tests.", () => {
   const client = new BlsClient();
@@ -21,6 +23,7 @@ describe("bless token tests.", () => {
   const mintAuthority: Keypair = Keypair.generate();
   const connection = client.connection;
   const blessTokenClient = client.blessTokenClient;
+  const accts = new BlessTokenAccounts();
   let mint: PublicKey | null = null;
   client.setWallet(new anchor.Wallet(wallet));
   const wallets = Array.from(Array(10), () => Keypair.generate());
@@ -67,7 +70,6 @@ describe("bless token tests.", () => {
   });
 
   it("initial", async () => {
-    const accts = new BlessTokenAccounts();
     accts.advisors = userTokenAccount[0];
     accts.airdrop = userTokenAccount[1];
     accts.communityRewards = userTokenAccount[2];
@@ -82,5 +84,21 @@ describe("bless token tests.", () => {
       signer: wallet!.publicKey,
       signerKeypair: [wallet!, mintAuthority],
     });
+
+    const amount_comapare = async (acct: PublicKey, r: number) => {
+      expect(
+        (await getAccount(connection, accts.airdrop)).amount.toString(),
+      ).equals(new anchor.BN(1_000_000_000).toString());
+    };
+    await amount_comapare(accts.airdrop, 1_000_000_000);
+    await amount_comapare(accts.advisors, 0);
+    await amount_comapare(accts.communityRewards, 46_000_000);
+    await amount_comapare(accts.ecosystem, 300_000_000);
+    await amount_comapare(accts.foundation, 0);
+    await amount_comapare(accts.liquidityProvision, 300_000_000);
+    await amount_comapare(accts.preseedSale, 0);
+    await amount_comapare(accts.seedSale, 0);
+    await amount_comapare(accts.team, 0);
+    await amount_comapare(accts.tgeMarketing, 200_000_000);
   });
 });
