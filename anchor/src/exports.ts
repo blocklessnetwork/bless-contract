@@ -1,42 +1,42 @@
 // Here we export some useful types and functions for interacting with the Anchor program.
 import { AnchorProvider, Program } from "@coral-xyz/anchor";
 import { Cluster, PublicKey } from "@solana/web3.js";
-import BlessTimeProgramIDL from "../target/idl/bless_time.json";
-import type { BlessTime } from "../target/types/bless_time";
+import BlessTokenProgramIDL from "../target/idl/bless_token.json";
+import type { BlessToken } from "../target/types/bless_token";
 
 // Re-export the generated IDL and type
-export { BlessTimeProgramIDL, BlessTime };
+export { BlessTokenProgramIDL, BlessToken };
 
 // The programId is imported from the program IDL.
-export const NODE_REGISTRATION_PROGRAM_ID = new PublicKey(
-  BlessTimeProgramIDL.address,
+export const BLESSTOKEN_PROGRAM_ID = new PublicKey(
+  BlessTokenProgramIDL.address,
 );
 
-export type BlessTimeProgram = Program<BlessTime>;
+export type BlessTokenProgram = Program<BlessToken>;
 
-// This is a helper function to get the Registration Anchor program.
-export function getBlessTimeProgram(
+// This is a helper function to get the Bless Token Anchor program.
+export function getBlessTokenProgram(
   provider: AnchorProvider,
   address?: PublicKey,
-): Program<BlessTime> {
-  return new Program<BlessTime>(
+): Program<BlessToken> {
+  return new Program<BlessToken>(
     {
-      ...BlessTimeProgramIDL,
-      address: address ? address.toBase58() : BlessTimeProgramIDL.address,
-    } as BlessTime,
+      ...BlessTokenProgramIDL,
+      address: address ? address.toBase58() : BlessTokenProgramIDL.address,
+    } as BlessToken,
     provider,
   );
 }
 
-// This is a helper function to get the program ID for the Registration program depending on the cluster.
-export function getBlessTimeProgramId(cluster: Cluster) {
+// This is a helper function to get the program ID for the Bless Token program depending on the cluster.
+export function getBlessTokenProgramId(cluster: Cluster) {
   switch (cluster) {
     case "devnet":
     case "testnet":
-      // This is the program ID for the Registration program on devnet and testnet.
-      return new PublicKey("93HzBKdD4w8jfBBdnbjdDs9NeiJB6xHfkrSTmVxLTiQD");
+      // This is the program ID for the Bless Token program on devnet and testnet.
+      return new PublicKey("6QtrRhkvR7YXAvbMqf3gEH29etrFZw1g1MrCVxQ2Muvq");
     case "mainnet-beta":
     default:
-      return NODE_REGISTRATION_PROGRAM_ID;
+      return BLESSTOKEN_PROGRAM_ID;
   }
 }

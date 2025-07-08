@@ -7,7 +7,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-bless_time = "93HzBKdD4w8jfBBdnbjdDs9NeiJB6xHfkrSTmVxLTiQD"
+bless_token = "6QtrRhkvR7YXAvbMqf3gEH29etrFZw1g1MrCVxQ2Muvq"
 
 [registry]
 url = "https://api.apr.dev"
@@ -17,4 +17,4 @@ cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
-test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 **/tests/**/*.ts"
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 --reporter list **/**/tests/**/*.ts"

@@ -9,14 +9,16 @@ pub use constants::*;
 pub use context::*;
 pub use states::*;
 
-declare_id!("93HzBKdD4w8jfBBdnbjdDs9NeiJB6xHfkrSTmVxLTiQD");
+declare_id!("6QtrRhkvR7YXAvbMqf3gEH29etrFZw1g1MrCVxQ2Muvq");
 
 #[program]
-pub mod bless_time {
+pub mod bless_token {
     use super::*;
 
     /// register function
     pub fn initial(ctx: Context<InitBlessToken>) -> Result<()> {
+        let bump = ctx.bumps.bless_state;
+        ctx.accounts.init(bump)?;
         Ok(())
     }
 }
