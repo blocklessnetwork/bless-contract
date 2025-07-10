@@ -16,10 +16,10 @@ export class BlessTokenAccounts {
   public team: PublicKey;
   public ecosystem: PublicKey;
   public foundation: PublicKey;
-  public liquidityProvision: PublicKey;
-  public tgeMarketing: PublicKey;
-  public airdrop: PublicKey;
-  public communityRewards: PublicKey;
+  public marketMaking: PublicKey;
+  public tgtMarketing: PublicKey;
+  public communityAirdrop: PublicKey;
+  public communityIncentives: PublicKey;
   public walletInvestor: PublicKey;
   public walletTeamAdvisor: PublicKey;
   public walletFoundation: PublicKey;
@@ -46,19 +46,19 @@ export class BlsTokenClient {
     }
     const payer: PublicKey = txOptions.signer || this.baseClient.getSigner();
     const tx = await this.baseClient.program.methods
-      .initial()
+      .blessTokenInitial()
       .accountsPartial({
         payer,
         blessMint,
-        airdrop: accounts.airdrop!,
-        communityRewards: accounts.communityRewards,
+        communityAirdrop: accounts.communityAirdrop!,
+        communityIncentives: accounts.communityIncentives,
         advisors: accounts.advisors,
         ecosystem: accounts.ecosystem,
         foundation: accounts.foundation,
-        liquidityProvision: accounts.liquidityProvision,
+        marketMaking: accounts.marketMaking,
         preseedSale: accounts.preseedSale,
         seedSale: accounts.seedSale,
-        tgtMarketing: accounts.tgeMarketing,
+        tgtMarketing: accounts.tgtMarketing,
         team: accounts.team,
         walletInvestor: accounts.walletInvestor,
         walletTeamAdvisor: accounts.walletTeamAdvisor,
@@ -67,6 +67,42 @@ export class BlsTokenClient {
           accounts.walletEcosystemLiquidityprovisionTgtmarketing,
         walletCommunityRewards: accounts.walletCommunityRewards,
         currentAuthority: mintAuthority.publicKey,
+      })
+      .preInstructions(preIxs)
+      .transaction();
+    const versioned = await this.baseClient.getVersionedTransaction({
+      tx,
+      ...txOptions,
+    });
+    return this.baseClient.sendAndConfirm(versioned, txOptions.signerKeypair);
+  }
+
+  public async fundBlessToken(
+    accounts: BlessTokenAccounts,
+    blessMint: PublicKey,
+    mintAuthority: Keypair,
+    txOptions: TxOptions = {},
+  ): Promise<TransactionSignature> {
+    let preIxs: TransactionInstruction[] = [];
+    if (txOptions?.preInstructions) {
+      preIxs = txOptions?.preInstructions;
+    }
+    const payer: PublicKey = txOptions.signer || this.baseClient.getSigner();
+    const tx = await this.baseClient.program.methods
+      .fundBlessToken()
+      .accountsPartial({
+        payer,
+        blessMint,
+        communityAirdrop: accounts.communityAirdrop!,
+        communityIncentives: accounts.communityIncentives,
+        advisors: accounts.advisors,
+        ecosystem: accounts.ecosystem,
+        foundation: accounts.foundation,
+        marketMaking: accounts.marketMaking,
+        preseedSale: accounts.preseedSale,
+        seedSale: accounts.seedSale,
+        tgtMarketing: accounts.tgtMarketing,
+        team: accounts.team,
       })
       .preInstructions(preIxs)
       .transaction();
