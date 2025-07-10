@@ -3,6 +3,9 @@ use anchor_lang::prelude::*;
 #[constant]
 pub const SEED_BLESS_CONTRACT_STATE: &str = "bless_contract_state";
 
+#[constant]
+pub const SEED_BLESS_VAULT: &str = "bless_vault_account";
+
 pub const BITMAP_SIZE: usize = 86;
 
 pub const PRE_SEED_SALE_FUND_FEE: u64 = 78_125_000;
@@ -28,3 +31,13 @@ pub const COMMUNITY_REWARDS_FEE: u64 = 46_000_000;
 // The funding fee will be reduced by 1 million each month for 5 months.
 pub const COMMUNITY_REWARDS_FEE_REDUCE_TIMES: u8 = 5;
 pub const COMMUNITY_REWARDS_FEE_REDUCE_FEE: u64 = 1_000_000;
+
+pub const WALLET_INVESTOR_FEE: u64 = 1625000000;
+
+pub const WALLET_TEAM_ADVISOR_FEE: u64 = 1800000000;
+
+pub const WALLET_FOUNDATION_FEE: u64 = 1000000000;
+
+pub const WALLET_ECOSYSTEM_LIQUIDITYPROVISION_TGTMARKETING_FEE: u64 = 1075000000;
+
+pub const WALLET_COMMUNITY_REWARDS_FEE: u64 = 4500000000;

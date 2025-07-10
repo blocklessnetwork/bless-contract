@@ -33,6 +33,21 @@ pub struct BlessTokenState {
     // the vault token public key.
     pub mint_pubkey: Pubkey,
 
+    // gets 16.25%
+    pub wallet_investor: Pubkey,
+
+    //gets 18%
+    pub wallet_team_advisor: Pubkey,
+
+    //gets 10%
+    pub wallet_foundation: Pubkey,
+
+    //get 10.75%
+    pub wallet_ecosystem_liquidityprovision_tgtmarketing: Pubkey,
+
+    //gets 45%
+    pub wallet_community_rewards: Pubkey,
+
     pub preseed_sale: Pubkey,
 
     pub preseed_sale_rule_outcome: RuleOutcome,

@@ -20,6 +20,11 @@ export class BlessTokenAccounts {
   public tgeMarketing: PublicKey;
   public airdrop: PublicKey;
   public communityRewards: PublicKey;
+  public walletInvestor: PublicKey;
+  public walletTeamAdvisor: PublicKey;
+  public walletFoundation: PublicKey;
+  public walletEcosystemLiquidityprovisionTgtmarketing: PublicKey;
+  public walletCommunityRewards: PublicKey;
 }
 
 export class BlsTokenClient {
@@ -55,6 +60,12 @@ export class BlsTokenClient {
         seedSale: accounts.seedSale,
         tgtMarketing: accounts.tgeMarketing,
         team: accounts.team,
+        walletInvestor: accounts.walletInvestor,
+        walletTeamAdvisor: accounts.walletTeamAdvisor,
+        walletFoundation: accounts.walletFoundation,
+        walletEcosystemLiquidityprovisionTgtmarketing:
+          accounts.walletEcosystemLiquidityprovisionTgtmarketing,
+        walletCommunityRewards: accounts.walletCommunityRewards,
         currentAuthority: mintAuthority.publicKey,
       })
       .preInstructions(preIxs)
