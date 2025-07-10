@@ -4,9 +4,9 @@ use anchor_spl::token::{
 };
 
 use crate::{
-    BitVec, BlessTokenState, RuleOutcome, BITMAP_SIZE, SEED_BLESS_CONTRACT_STATE, SEED_BLESS_VAULT,
-    WALLET_COMMUNITY_REWARDS_FEE, WALLET_ECOSYSTEM_LIQUIDITYPROVISION_TGTMARKETING_FEE,
-    WALLET_FOUNDATION_FEE, WALLET_INVESTOR_FEE, WALLET_TEAM_ADVISOR_FEE,
+    BlessTokenState, SEED_BLESS_CONTRACT_STATE, SEED_BLESS_VAULT, WALLET_COMMUNITY_REWARDS_FEE,
+    WALLET_ECOSYSTEM_LIQUIDITYPROVISION_TGTMARKETING_FEE, WALLET_FOUNDATION_FEE,
+    WALLET_INVESTOR_FEE, WALLET_TEAM_ADVISOR_FEE,
 };
 
 #[derive(Accounts)]
@@ -78,9 +78,9 @@ pub struct InitBlessToken<'info> {
 
     #[account(
         mut,
-        constraint = bless_mint.key() == liquidity_provision.mint,
+        constraint = bless_mint.key() == market_making.mint,
     )]
-    pub liquidity_provision: Box<Account<'info, TokenAccount>>,
+    pub market_making: Box<Account<'info, TokenAccount>>,
 
     #[account(
         mut,
@@ -90,15 +90,15 @@ pub struct InitBlessToken<'info> {
 
     #[account(
         mut,
-        constraint = bless_mint.key() == airdrop.mint,
+        constraint = bless_mint.key() == community_airdrop.mint,
     )]
-    pub airdrop: Box<Account<'info, TokenAccount>>,
+    pub community_airdrop: Box<Account<'info, TokenAccount>>,
 
     #[account(
         mut,
-        constraint = bless_mint.key() == community_rewards.mint,
+        constraint = bless_mint.key() == community_incentives.mint,
     )]
-    pub community_rewards: Box<Account<'info, TokenAccount>>,
+    pub community_incentives: Box<Account<'info, TokenAccount>>,
 
     #[account(
         mut,
@@ -186,39 +186,17 @@ impl<'info> InitBlessToken<'info> {
             self.bless_state.foundation_rule_outcome.rule.set(i, true)?;
         }
 
-        //initial the liquidity provision funding rule.
-        self.bless_state
-            .liquidity_provision_rule_outcome
-            .rule
-            .set(0, true)?;
-
-        //initial the tgt marketing funding rule.
-        self.bless_state
-            .tgt_marketing_rule_outcome
-            .rule
-            .set(0, true)?;
-
-        //initial the airdrop funding rule.
-        self.bless_state.airdrop_rule_outcome.rule.set(0, true)?;
-
-        //initial the community rewards funding rule.
-        self.bless_state
-            .community_rewards_rule_outcome
-            .rule
-            .set(0, true)?;
-
         Ok(())
     }
 
     /// mint the token to the account.
     /// signer_seeds is the signature.
-    fn mint_to(&mut self, to: AccountInfo<'info>, amount: u64) -> Result<()> {
-        let bless_mint = self.bless_mint.key();
-        let signer_seeds: &[&[&[u8]]] = &[&[
-            SEED_BLESS_CONTRACT_STATE.as_bytes(),
-            bless_mint.as_ref(),
-            &[self.bless_state.bump],
-        ]];
+    fn mint_to(
+        &mut self,
+        to: AccountInfo<'info>,
+        amount: u64,
+        signer_seeds: &[&[&[u8]]],
+    ) -> Result<()> {
         let cpi_ctx = CpiContext::new_with_signer(
             self.token_program.to_account_info(),
             MintTo {
@@ -234,29 +212,43 @@ impl<'info> InitBlessToken<'info> {
 
     /// mint all token to wallet 1-5
     fn mint_to_all_to_wallets(&mut self) -> Result<()> {
+        let bless_mint = self.bless_mint.key();
+        let signer_seeds: &[&[&[u8]]] = &[&[
+            SEED_BLESS_CONTRACT_STATE.as_bytes(),
+            bless_mint.as_ref(),
+            &[self.bless_state.bump],
+        ]];
         self.mint_to(
             self.wallet_community_rewards.to_account_info(),
             WALLET_COMMUNITY_REWARDS_FEE,
+            signer_seeds,
         )?;
         self.mint_to(
             self.wallet_foundation.to_account_info(),
             WALLET_FOUNDATION_FEE,
+            signer_seeds,
         )?;
         self.mint_to(
             self.wallet_ecosystem_liquidityprovision_tgtmarketing
                 .to_account_info(),
             WALLET_ECOSYSTEM_LIQUIDITYPROVISION_TGTMARKETING_FEE,
+            signer_seeds,
         )?;
-        self.mint_to(self.wallet_investor.to_account_info(), WALLET_INVESTOR_FEE)?;
+        self.mint_to(
+            self.wallet_investor.to_account_info(),
+            WALLET_INVESTOR_FEE,
+            signer_seeds,
+        )?;
         self.mint_to(
             self.wallet_team_advisor.to_account_info(),
             WALLET_TEAM_ADVISOR_FEE,
+            signer_seeds,
         )?;
         Ok(())
     }
 
     /// signature guarntee the amount and recharge_time is not fake.
-    pub fn init(&mut self, bump: u8) -> Result<()> {
+    pub fn init(&mut self, bump: u8, vault_bump: u8) -> Result<()> {
         self.bless_state.set_inner(BlessTokenState {
             mint_pubkey: self.bless_mint.key(),
             preseed_sale: self.preseed_sale.key(),
@@ -271,19 +263,16 @@ impl<'info> InitBlessToken<'info> {
             ecosystem_rule_outcome: Default::default(),
             foundation: self.foundation.key(),
             foundation_rule_outcome: Default::default(),
-            liquidity_provision: self.liquidity_provision.key(),
-            liquidity_provision_rule_outcome: Default::default(),
+            market_making: self.market_making.key(),
+            market_making_flag: false,
             tgt_marketing: self.tgt_marketing.key(),
-            tgt_marketing_rule_outcome: Default::default(),
-            airdrop: self.airdrop.key(),
-            airdrop_rule_outcome: Default::default(),
-            community_rewards: self.community_rewards.key(),
-            community_rewards_rule_outcome: RuleOutcome {
-                // Funding should be done every month.
-                rule: BitVec::new_with_default(BITMAP_SIZE, 0xFF),
-                outcome: BitVec::new(BITMAP_SIZE),
-            },
+            tgt_marketing_flag: false,
+            community_airdrop: self.community_airdrop.key(),
+            community_airdrop_flag: false,
+            community_incentives: self.community_incentives.key(),
+            community_incentives_flag: false,
             bump,
+            vault_bump,
             current_month: 0,
             wallet_investor: self.wallet_investor.key(),
             wallet_team_advisor: self.wallet_team_advisor.key(),
