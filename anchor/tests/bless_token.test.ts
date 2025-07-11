@@ -10,6 +10,7 @@ import { BlsClient } from "../src/client/client";
 import {
   Account,
   createMint,
+  createTransferInstruction,
   getAccount,
   getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
@@ -26,7 +27,7 @@ describe("bless token tests.", () => {
   const accts = new BlessTokenAccounts();
   let mint: PublicKey | null = null;
   client.setWallet(new anchor.Wallet(wallet));
-  const wallets = Array.from(Array(10), () => Keypair.generate());
+  const wallets = Array.from(Array(15), () => Keypair.generate());
   const userTokenAccount: PublicKey[] = [];
 
   const log = async (signature: string): Promise<string> => {
@@ -71,34 +72,47 @@ describe("bless token tests.", () => {
 
   it("initial", async () => {
     accts.advisors = userTokenAccount[0];
-    accts.airdrop = userTokenAccount[1];
-    accts.communityRewards = userTokenAccount[2];
+    accts.communityAirdrop = userTokenAccount[1];
+    accts.communityIncentives = userTokenAccount[2];
     accts.ecosystem = userTokenAccount[3];
     accts.foundation = userTokenAccount[4];
-    accts.liquidityProvision = userTokenAccount[5];
+    accts.marketMaking = userTokenAccount[5];
     accts.preseedSale = userTokenAccount[6];
     accts.seedSale = userTokenAccount[7];
     accts.team = userTokenAccount[8];
-    accts.tgeMarketing = userTokenAccount[9];
+    accts.tgtMarketing = userTokenAccount[9];
+    accts.walletCommunityRewards = userTokenAccount[10];
+    accts.walletEcosystemLiquidityprovisionTgtmarketing = userTokenAccount[11];
+    accts.walletFoundation = userTokenAccount[12];
+    accts.walletInvestor = userTokenAccount[13];
+    accts.walletTeamAdvisor = userTokenAccount[14];
     await blessTokenClient.initialBlessTokenState(accts, mint!, mintAuthority, {
       signer: wallet!.publicKey,
       signerKeypair: [wallet!, mintAuthority],
     });
 
-    const amount_comapare = async (acct: PublicKey, r: number) => {
-      expect(
-        (await getAccount(connection, accts.airdrop)).amount.toString(),
-      ).equals(new anchor.BN(1_000_000_000).toString());
+    const sum = async (array: PublicKey[]) => {
+      let s = new anchor.BN(0);
+      for (const wallt of array) {
+        let am = (await getAccount(connection, wallt)).amount;
+        s = s.add(new anchor.BN(am));
+      }
+      return s;
     };
-    await amount_comapare(accts.airdrop, 1_000_000_000);
-    await amount_comapare(accts.advisors, 0);
-    await amount_comapare(accts.communityRewards, 46_000_000);
-    await amount_comapare(accts.ecosystem, 300_000_000);
-    await amount_comapare(accts.foundation, 0);
-    await amount_comapare(accts.liquidityProvision, 300_000_000);
-    await amount_comapare(accts.preseedSale, 0);
-    await amount_comapare(accts.seedSale, 0);
-    await amount_comapare(accts.team, 0);
-    await amount_comapare(accts.tgeMarketing, 200_000_000);
+    let sumVal = await sum([
+      accts.walletCommunityRewards,
+      accts.walletEcosystemLiquidityprovisionTgtmarketing,
+      accts.walletFoundation,
+      accts.walletInvestor,
+      accts.walletTeamAdvisor,
+    ]);
+    expect(sumVal.toNumber()).eq(10_000_000_000);
+  });
+
+  it("fund", async () => {
+    await blessTokenClient.fundBlessToken(accts, mint!, {
+      signer: wallet!.publicKey,
+      signerKeypair: [wallet!],
+    });
   });
 });

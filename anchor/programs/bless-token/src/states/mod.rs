@@ -33,6 +33,21 @@ pub struct BlessTokenState {
     // the vault token public key.
     pub mint_pubkey: Pubkey,
 
+    // gets 16.25%
+    pub wallet_investor: Pubkey,
+
+    //gets 18%
+    pub wallet_team_advisor: Pubkey,
+
+    //gets 10%
+    pub wallet_foundation: Pubkey,
+
+    //get 10.75%
+    pub wallet_ecosystem_liquidityprovision_tgtmarketing: Pubkey,
+
+    //gets 45%
+    pub wallet_community_rewards: Pubkey,
+
     pub preseed_sale: Pubkey,
 
     pub preseed_sale_rule_outcome: RuleOutcome,
@@ -57,23 +72,25 @@ pub struct BlessTokenState {
 
     pub foundation_rule_outcome: RuleOutcome,
 
-    pub liquidity_provision: Pubkey,
+    pub market_making: Pubkey,
 
-    pub liquidity_provision_rule_outcome: RuleOutcome,
+    pub market_making_flag: bool,
 
     pub tgt_marketing: Pubkey,
 
-    pub tgt_marketing_rule_outcome: RuleOutcome,
+    pub tgt_marketing_flag: bool,
 
-    pub airdrop: Pubkey,
+    pub community_airdrop: Pubkey,
 
-    pub airdrop_rule_outcome: RuleOutcome,
+    pub community_airdrop_flag: bool,
 
-    pub community_rewards: Pubkey,
+    pub community_incentives: Pubkey,
 
-    pub community_rewards_rule_outcome: RuleOutcome,
+    pub community_incentives_flag: bool,
 
     pub current_month: u8,
 
     pub bump: u8,
+
+    pub vault_bump: u8,
 }
