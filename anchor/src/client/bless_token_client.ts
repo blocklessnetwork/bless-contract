@@ -34,6 +34,16 @@ export class BlsTokenClient {
     this.baseClient = base;
   }
 
+  public async fetchBlessState(mint: PublicKey) {
+    let state = PublicKey.findProgramAddressSync(
+      [Buffer.from("bless_contract_state"), mint.toBuffer()],
+      this.baseClient.programId,
+    );
+    return await this.baseClient.program.account.blessTokenState.fetch(
+      state[0],
+    );
+  }
+
   public async initialBlessTokenState(
     accounts: BlessTokenAccounts,
     blessMint: PublicKey,

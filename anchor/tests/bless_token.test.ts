@@ -10,6 +10,7 @@ import { BlsClient } from "../src/client/client";
 import {
   Account,
   createMint,
+  createTransferInstruction,
   getAccount,
   getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
@@ -109,6 +110,12 @@ describe("bless token tests.", () => {
   });
 
   it("fund", async () => {
+    const transferIx = createTransferInstruction(
+      accts.walletCommunityRewards,
+      toTokenAccount,
+      sender.publicKey, // authority
+      amount,
+    );
     await blessTokenClient.fundBlessToken(accts, mint!, {
       signer: wallet!.publicKey,
       signerKeypair: [wallet!],
