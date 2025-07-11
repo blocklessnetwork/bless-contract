@@ -110,12 +110,6 @@ describe("bless token tests.", () => {
   });
 
   it("fund", async () => {
-    const transferIx = createTransferInstruction(
-      accts.walletCommunityRewards,
-      toTokenAccount,
-      sender.publicKey, // authority
-      amount,
-    );
     await blessTokenClient.fundBlessToken(accts, mint!, {
       signer: wallet!.publicKey,
       signerKeypair: [wallet!],
