@@ -80,7 +80,6 @@ export class BlsTokenClient {
   public async fundBlessToken(
     accounts: BlessTokenAccounts,
     blessMint: PublicKey,
-    mintAuthority: Keypair,
     txOptions: TxOptions = {},
   ): Promise<TransactionSignature> {
     let preIxs: TransactionInstruction[] = [];

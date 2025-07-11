@@ -14,21 +14,20 @@ pub struct FundBlessToken<'info> {
 
     #[account(
         mut,
-        seeds = [SEED_BLESS_VAULT.as_bytes(), bless_state.mint_pubkey.as_ref()],
-        token::mint = bless_state.mint_pubkey,
-        token::authority = bless_state,
+        seeds = [SEED_BLESS_CONTRACT_STATE.as_bytes(), bless_mint.key().as_ref()],
+        bump = bless_state.bump,
+    )]
+    pub bless_state: Box<Account<'info, BlessTokenState>>,
+
+    #[account(
+        mut,
+        seeds = [SEED_BLESS_VAULT.as_bytes(), bless_mint.key().as_ref()],
         bump = bless_state.vault_bump,
     )]
     pub vault_account: Box<Account<'info, TokenAccount>>,
 
     #[account(
         mut,
-        seeds = [SEED_BLESS_CONTRACT_STATE.as_bytes(), bless_state.mint_pubkey.key().as_ref()],
-        bump = bless_state.bump,
-    )]
-    pub bless_state: Box<Account<'info, BlessTokenState>>,
-
-    #[account(
         constraint = bless_mint.key() == bless_state.mint_pubkey,
     )]
     pub bless_mint: Box<Account<'info, Mint>>,
