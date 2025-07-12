@@ -104,7 +104,7 @@ export class Base {
             throw new Error(`Unknown RPC error: ${error}`);
           }
           // @ts-ignore
-          const instructionError = error["InstructionError"];
+          const instructionError = (error as any)["InstructionError"];
           throw new Error(
             `Error in transaction: instruction index ${instructionError[0]}, custom program error ${instructionError[1]["Custom"]}`,
           );
@@ -146,7 +146,7 @@ export class Base {
           );
         } catch (e) {
           //TODO
-          console.log(e);
+          console.error("Failed to calculate compute units:", e);
         }
       }
       if (computeUnitLimit) {
@@ -215,9 +215,10 @@ export class Base {
 
   isPhantom(): boolean {
     if (!isBrowser) return false;
-    return (
-      // @ts-ignore
-      window?.phantom?.solana?.isPhantom && window?.phantom?.solana?.isConnected
+    const phantomWindow = window as PhantomWindow;
+    return !!(
+      phantomWindow.phantom?.solana?.isPhantom &&
+      phantomWindow.phantom?.solana?.isConnected
     );
   }
 

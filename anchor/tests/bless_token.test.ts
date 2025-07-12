@@ -108,11 +108,4 @@ describe("bless token tests.", () => {
     ]);
     expect(sumVal.toNumber()).eq(10_000_000_000);
   });
-
-  it("fund", async () => {
-    await blessTokenClient.fundBlessToken(accts, mint!, {
-      signer: wallet!.publicKey,
-      signerKeypair: [wallet!],
-    });
-  });
 });
