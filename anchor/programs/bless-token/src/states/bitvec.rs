@@ -31,7 +31,7 @@ impl BitVec {
     /// the bit start from 0.
     pub fn set(&mut self, bit: usize, b: bool) -> Result<()> {
         if bit as u32 >= self.len {
-            return Err(BlsError::OutofBound.into());
+            return Err(BlsError::OutOfBound.into());
         }
         let idx = bit / 8;
         let off = bit % 8;
@@ -49,7 +49,7 @@ impl BitVec {
     /// get the bit offset value, the result is true or false, true is 1 and false is 0
     pub fn get(&mut self, bit: usize) -> Result<bool> {
         if bit as u32 >= self.len {
-            return Err(BlsError::OutofBound.into());
+            return Err(BlsError::OutOfBound.into());
         }
         let idx = bit / 8;
         let off = bit % 8;

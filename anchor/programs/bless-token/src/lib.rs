@@ -17,7 +17,7 @@ pub mod bless_token {
     use super::*;
 
     /// initial bless token state function
-    pub fn bless_token_initial(ctx: Context<InitBlessToken>) -> Result<()> {
+    pub fn initialize_bless_token(ctx: Context<InitBlessToken>) -> Result<()> {
         let bump = ctx.bumps.bless_state;
         ctx.accounts.init(bump)
     }
