@@ -56,7 +56,7 @@ export class BlsTokenClient {
     }
     const payer: PublicKey = txOptions.signer || this.baseClient.getSigner();
     const tx = await this.baseClient.program.methods
-      .blessTokenInitial()
+      .initializeBlessToken()
       .accountsPartial({
         payer,
         blessMint,
