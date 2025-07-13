@@ -19,12 +19,6 @@ pub mod bless_token {
     /// initial bless token state function
     pub fn initialize_bless_token(ctx: Context<InitBlessToken>) -> Result<()> {
         let bump = ctx.bumps.bless_state;
-        let vault_bump = ctx.bumps.vault_account;
-        ctx.accounts.init(bump, vault_bump)
-    }
-
-    /// distribute to packet account period.
-    pub fn fund_bless_token(ctx: Context<FundBlessToken>) -> Result<()> {
-        ctx.accounts.fund()
+        ctx.accounts.init(bump)
     }
 }
