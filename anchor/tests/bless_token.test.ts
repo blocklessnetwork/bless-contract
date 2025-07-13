@@ -71,6 +71,16 @@ describe("bless token tests.", () => {
   });
 
   it("initial", async () => {
+    accts.advisors = userTokenAccount[0];
+    accts.communityAirdrop = userTokenAccount[1];
+    accts.communityIncentives = userTokenAccount[2];
+    accts.ecosystem = userTokenAccount[3];
+    accts.foundation = userTokenAccount[4];
+    accts.marketMaking = userTokenAccount[5];
+    accts.preseedSale = userTokenAccount[6];
+    accts.seedSale = userTokenAccount[7];
+    accts.team = userTokenAccount[8];
+    accts.tgtMarketing = userTokenAccount[9];
     accts.walletCommunityRewards = userTokenAccount[10];
     accts.walletEcosystemLiquidityprovisionTgtmarketing = userTokenAccount[11];
     accts.walletFoundation = userTokenAccount[12];
