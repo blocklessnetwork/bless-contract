@@ -174,7 +174,7 @@ impl<'info> FundBlessToken<'info> {
 
     pub fn fund(&mut self) -> Result<()> {
         if self.bless_state.current_month >= MAX_MONTHS as _ {
-            return Err(BlsError::OufoutMaxMonth.into());
+            return Err(BlsError::OutOfMaxMonth.into());
         }
         if self.bless_state.current_month == 0 {
             self.fund_genesis()?;
