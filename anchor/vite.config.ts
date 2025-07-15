@@ -1,14 +1,14 @@
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
-import { defineConfig } from 'vite'
-import tailwindcss from '@tailwindcss/vite'
-import viteTsconfigPaths from 'vite-tsconfig-paths'
-import { resolve } from 'node:path'
-import dts from 'vite-plugin-dts'
+import { nodePolyfills } from "vite-plugin-node-polyfills";
+import { defineConfig } from "vite";
+import tailwindcss from "@tailwindcss/vite";
+import viteTsconfigPaths from "vite-tsconfig-paths";
+import { resolve } from "node:path";
+import dts from "vite-plugin-dts";
 
 // https://vite.dev/config/
 export default defineConfig({
   optimizeDeps: {
-    include: ['buffer', 'process'],
+    include: ["buffer", "process"],
   },
   plugins: [
     dts({ insertTypesEntry: true }),
@@ -19,16 +19,16 @@ export default defineConfig({
     }),
   ],
   build: {
-    outDir: '../dist',
+    outDir: "../dist",
     sourcemap: true,
     lib: {
-      entry: 'src/index.ts',
-      name: 'bls-node-registration',
-      fileName: 'index',
+      entry: "src/index.ts",
+      name: "bless-contract",
+      fileName: "index",
     },
     rollupOptions: {
-      external: ['fs', 'path'],
+      external: ["fs", "path"],
     },
   },
   root: resolve(__dirname),
-})
+});
