@@ -1,25 +1,13 @@
 import {
   Keypair,
   PublicKey,
-  Transaction,
   TransactionInstruction,
   TransactionSignature,
 } from "@solana/web3.js";
 import { TxOptions } from "./base";
 import { BlsBaseClient } from "./base_client";
-import { Account } from "@solana/spl-token";
 
 export class BlessTokenAccounts {
-  public preseedSale: PublicKey;
-  public seedSale: PublicKey;
-  public advisors: PublicKey;
-  public team: PublicKey;
-  public ecosystem: PublicKey;
-  public foundation: PublicKey;
-  public marketMaking: PublicKey;
-  public tgtMarketing: PublicKey;
-  public communityAirdrop: PublicKey;
-  public communityIncentives: PublicKey;
   public walletInvestor: PublicKey;
   public walletTeamAdvisor: PublicKey;
   public walletFoundation: PublicKey;
