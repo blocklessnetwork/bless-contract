@@ -1,6 +1,8 @@
 import { BlsBaseClient } from "./base_client";
-import { BlsTokenClient } from "./bless_token_client";
+import { BlsTokenClient, BlessTokenAccounts } from "./bless_token_client";
 import { BlsClientConfig } from "./config";
+
+export { BlessTokenAccounts };
 
 export class BlsClient extends BlsBaseClient {
   private _blessTokenClient: BlsTokenClient;
