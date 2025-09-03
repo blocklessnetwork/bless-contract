@@ -7,4 +7,7 @@ pub enum BlsError {
 
     #[msg("Out of max month")]
     OutOfMaxMonth,
+
+    #[msg("Invalid mint token.")]
+    InvalidMintToken,
 }

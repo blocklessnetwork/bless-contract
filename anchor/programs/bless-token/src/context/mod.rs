@@ -4,7 +4,7 @@ use anchor_spl::token::{
 };
 
 use crate::{
-    BlessTokenState, SEED_BLESS_CONTRACT_STATE, WALLET_COMMUNITY_REWARDS_FEE,
+    errors::BlsError, BlessTokenState, SEED_BLESS_CONTRACT_STATE, WALLET_COMMUNITY_REWARDS_FEE,
     WALLET_ECOSYSTEM_LIQUIDITYPROVISION_TGTMARKETING_FEE, WALLET_FOUNDATION_FEE,
     WALLET_INVESTOR_FEE, WALLET_TEAM_ADVISOR_FEE,
 };
@@ -146,6 +146,13 @@ impl<'info> InitBlessToken<'info> {
 
     /// signature guarntee the amount and recharge_time is not fake.
     pub fn init(&mut self, bump: u8) -> Result<()> {
+        // the bless token in solana chain, todo replease use bless token address.
+        let bless_token_key =
+            Pubkey::from_str_const("Fg6PaFpoGXkYsidMpWxqSWY3kxG7dMw5s3t5Q4k3wSXA");
+        // check the bless mint address
+        if self.bless_mint.key() != bless_token_key {
+            return Err(BlsError::InvalidMintToken.into());
+        }
         self.bless_state.set_inner(BlessTokenState {
             mint_pubkey: self.bless_mint.key(),
             bump,
