@@ -25,7 +25,15 @@ describe("bless token tests.", () => {
   const connection = client.connection;
   const blessTokenClient = client.blessTokenClient;
   const accts = new BlessTokenAccounts();
-  let mint: PublicKey | null = null;
+  let mintKey = Keypair.fromSecretKey(
+    Uint8Array.from([
+      54, 85, 164, 158, 45, 106, 125, 208, 143, 84, 31, 75, 79, 226, 133, 229,
+      138, 121, 240, 44, 109, 55, 193, 58, 202, 166, 183, 236, 150, 177, 141,
+      231, 100, 11, 5, 53, 163, 194, 33, 90, 157, 152, 167, 23, 76, 74, 143,
+      227, 68, 11, 37, 60, 172, 146, 90, 227, 3, 191, 25, 55, 171, 216, 233, 99,
+    ]),
+  );
+  let mint: PublicKey = mintKey.publicKey;
   client.setWallet(new anchor.Wallet(wallet));
   const wallets = Array.from(Array(15), () => Keypair.generate());
   const userTokenAccount: PublicKey[] = [];
@@ -57,7 +65,8 @@ describe("bless token tests.", () => {
       wallet,
       mintAuthority.publicKey,
       mintAuthority.publicKey,
-      6,
+      9,
+      mintKey,
     );
     for (const wal of wallets) {
       let tokenAddr: Account = await getOrCreateAssociatedTokenAccount(

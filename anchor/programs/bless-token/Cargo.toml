@@ -10,6 +10,7 @@ name = "bless_token"
 
 [features]
 default = []
+testnet = []
 cpi = ["no-entrypoint"]
 no-entrypoint = []
 no-idl = []
