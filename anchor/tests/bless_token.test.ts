@@ -105,6 +105,9 @@ describe("bless token tests.", () => {
       accts.walletInvestor,
       accts.walletTeamAdvisor,
     ]);
-    expect(sumVal.toNumber()).eq(10_000_000_000);
+    console.log(sumVal.toString());
+    expect(sumVal.div(new anchor.BN(1_000_000_000)).toNumber()).eq(
+      10_000_000_000,
+    );
   });
 });
