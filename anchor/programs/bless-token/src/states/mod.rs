@@ -31,3 +31,11 @@ pub struct BlessTokenState {
 
     pub bump: u8,
 }
+
+#[account]
+#[derive(InitSpace)]
+pub struct BlessTokenMetaState {
+    pub admin: Pubkey,
+    pub pending_admin: Pubkey,
+    pub bump: u8,
+}

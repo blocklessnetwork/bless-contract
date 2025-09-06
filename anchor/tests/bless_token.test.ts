@@ -110,4 +110,13 @@ describe("bless token tests.", () => {
       10_000_000_000,
     );
   });
+
+  it("initial meta state", async () => {
+    await blessTokenClient.initialBlessTokenMetaState(mint!);
+  });
+
+  it("create metadata", async () => {
+    const metaPda = blessTokenClient.getMetadataSync(mint!);
+    await blessTokenClient.createMetadata(mint!, metaPda);
+  });
 });
