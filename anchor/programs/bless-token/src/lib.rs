@@ -9,7 +9,7 @@ pub use constants::*;
 pub use context::*;
 pub use states::*;
 
-declare_id!("uqmCn7C32qa1MvbiC6MxLnnVVLFnutx3tJ7sdDT73g2");
+declare_id!("H5vW4kkhaFhR5CBAyL46rREFkWfCD4cVwTw4xXZ6wtAy");
 
 #[program]
 pub mod bless_token {
@@ -45,7 +45,28 @@ pub mod bless_token {
         ctx.accounts.accept_admin()
     }
 
-    pub fn create_metadata(ctx: Context<BlessTokenMetaSetMetadata>) -> Result<()> {
-        ctx.accounts.create_metadata()
+    /// Creates token metadata with name, symbol, and metadata URI.
+    /// This is usually called during initialization to bind the token
+    /// to the Metaplex Token Metadata program.
+    pub fn create_metadata(
+        ctx: Context<BlessTokenMetaSetMetadata>,
+        name: String,
+        symbol: String,
+        uri: String,
+    ) -> Result<()> {
+        ctx.accounts.create_metadata(name, symbol, uri)
+    }
+
+    /// Update token metadata with name, symbol, and metadata URI.
+    /// Unlike `create_metadata`, this is called after initialization
+    /// to modify the existing metadata entry stored by the
+    /// Metaplex Token Metadata program.
+    pub fn update_metadata(
+        ctx: Context<BlessTokenMetaSetMetadata>,
+        name: String,
+        symbol: String,
+        uri: String,
+    ) -> Result<()> {
+        ctx.accounts.update_metadata(name, symbol, uri)
     }
 }

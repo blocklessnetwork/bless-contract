@@ -19,6 +19,12 @@ const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
   "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
 );
 
+export type Metadata = {
+  name: string;
+  symbol: string;
+  uri: string;
+};
+
 export class BlsTokenClient {
   baseClient: BlsBaseClient;
 
@@ -26,7 +32,7 @@ export class BlsTokenClient {
     this.baseClient = base;
   }
 
-  public getMetadataSync(mint: PublicKey) {
+  public getMetadataSync(mint: PublicKey): PublicKey {
     const [metadataPDA] = PublicKey.findProgramAddressSync(
       [
         Buffer.from("metadata"),
@@ -108,6 +114,7 @@ export class BlsTokenClient {
   public async createMetadata(
     blessMint: PublicKey,
     metaPda: PublicKey,
+    meta: Metadata,
     txOptions: TxOptions = {},
   ): Promise<TransactionSignature> {
     let preIxs: TransactionInstruction[] = [];
@@ -116,7 +123,36 @@ export class BlsTokenClient {
     }
     const payer: PublicKey = txOptions.signer || this.baseClient.getSigner();
     const tx = await this.baseClient.program.methods
-      .createMetadata()
+      .createMetadata(meta.name, meta.symbol, meta.uri)
+      .accountsPartial({
+        payer,
+        blessMint,
+        metadataProgram: TOKEN_METADATA_PROGRAM_ID,
+        admin: payer,
+        metaPda,
+      })
+      .preInstructions(preIxs)
+      .transaction();
+    const versioned = await this.baseClient.getVersionedTransaction({
+      tx,
+      ...txOptions,
+    });
+    return this.baseClient.sendAndConfirm(versioned, txOptions.signerKeypair);
+  }
+
+  public async updateMetadata(
+    blessMint: PublicKey,
+    metaPda: PublicKey,
+    meta: Metadata,
+    txOptions: TxOptions = {},
+  ): Promise<TransactionSignature> {
+    let preIxs: TransactionInstruction[] = [];
+    if (txOptions?.preInstructions) {
+      preIxs = txOptions?.preInstructions;
+    }
+    const payer: PublicKey = txOptions.signer || this.baseClient.getSigner();
+    const tx = await this.baseClient.program.methods
+      .updateMetadata(meta.name, meta.symbol, meta.uri)
       .accountsPartial({
         payer,
         blessMint,

@@ -1,12 +1,10 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::Mint;
-use mpl_token_metadata::{
-    accounts::Metadata,
-    instructions::{
-        CreateMetadataAccountV3Cpi, CreateMetadataAccountV3CpiAccounts,
-        CreateMetadataAccountV3InstructionArgs,
+use anchor_spl::{
+    metadata::{
+        create_metadata_accounts_v3, mpl_token_metadata::types::DataV2,
+        update_metadata_accounts_v2, CreateMetadataAccountsV3, Metadata, UpdateMetadataAccountsV2,
     },
-    types::{Creator, DataV2},
+    token::Mint,
 };
 
 use crate::{
@@ -176,50 +174,44 @@ pub struct BlessTokenMetaSetMetadata<'info> {
     pub bless_meta_state: Account<'info, BlessTokenMetaState>,
 
     /// CHECK: this is meta pda
+    #[account(mut)]
     pub meta_pda: AccountInfo<'info>,
-
-    pub rent: Sysvar<'info, Rent>,
 
     pub system_program: Program<'info, System>,
 
-    /// CHECK: metadata program
-    pub metadata_program: AccountInfo<'info>,
+    pub metadata_program: Program<'info, Metadata>,
+
+    pub rent: Sysvar<'info, Rent>,
 }
 
 impl<'info> BlessTokenMetaSetMetadata<'info> {
-    pub fn set_metadata(&mut self) -> Result<()> {
-        self.create_metadata()
-    }
-
-    pub fn create_metadata(&mut self) -> Result<()> {
-        let rent = self.rent.to_account_info();
-        let meta_ix = CreateMetadataAccountV3CpiAccounts {
-            metadata: &self.meta_pda,
-            mint: &self.bless_mint.to_account_info(),
-            mint_authority: &self.bless_state.to_account_info(),
-            payer: &self.payer.to_account_info(),
-            update_authority: (&self.payer.to_account_info(), true),
-            system_program: &self.system_program.to_account_info(),
-            rent: Some(&rent),
-        };
-        let args = CreateMetadataAccountV3InstructionArgs {
-            data: DataV2 {
-                name: "test".to_string(),
-                symbol: "test".to_string(),
-                uri: "test".to_string(),
-                seller_fee_basis_points: 0,
-                creators: Some(vec![Creator {
-                    address: self.bless_state.key(),
-                    verified: false,
-                    share: 100,
-                }]),
-                collection: None,
-                uses: None,
+    pub fn update_metadata(&mut self, name: String, symbol: String, uri: String) -> Result<()> {
+        let mint_bytes = self.bless_mint.key();
+        let signer_seeds: &[&[&[u8]]] = &[&[
+            SEED_BLESS_CONTRACT_STATE.as_bytes(),
+            mint_bytes.as_ref(),
+            &[self.bless_state.bump],
+        ]];
+        let cpi_ctx = CpiContext::new_with_signer(
+            self.metadata_program.to_account_info().clone(),
+            UpdateMetadataAccountsV2 {
+                metadata: self.meta_pda.to_account_info(),
+                update_authority: self.bless_state.to_account_info(),
             },
-            is_mutable: true,
-            collection_details: None,
+            signer_seeds,
+        );
+        let datav2 = DataV2 {
+            name,
+            symbol,
+            uri,
+            seller_fee_basis_points: 0,
+            creators: None,
+            collection: None,
+            uses: None,
         };
-
+        update_metadata_accounts_v2(cpi_ctx, None, Some(datav2), None, Some(true))
+    }
+    pub fn create_metadata(&mut self, name: String, symbol: String, uri: String) -> Result<()> {
         let mint_bytes = self.bless_mint.key();
         let signer_seeds: &[&[&[u8]]] = &[&[
             SEED_BLESS_CONTRACT_STATE.as_bytes(),
@@ -227,9 +219,29 @@ impl<'info> BlessTokenMetaSetMetadata<'info> {
             &[self.bless_state.bump],
         ]];
 
-        CreateMetadataAccountV3Cpi::new(&self.metadata_program.to_account_info(), meta_ix, args)
-            .invoke_signed(signer_seeds)?;
-
+        let cpi_ctx = CpiContext::new_with_signer(
+            self.metadata_program.to_account_info().clone(),
+            CreateMetadataAccountsV3 {
+                metadata: self.meta_pda.to_account_info(),
+                mint: self.bless_mint.to_account_info(),
+                mint_authority: self.bless_state.to_account_info(),
+                payer: self.payer.to_account_info(),
+                update_authority: self.bless_state.to_account_info(),
+                system_program: self.system_program.to_account_info(),
+                rent: self.rent.to_account_info(),
+            },
+            signer_seeds,
+        );
+        let datav2 = DataV2 {
+            name,
+            symbol,
+            uri,
+            seller_fee_basis_points: 0,
+            creators: None,
+            collection: None,
+            uses: None,
+        };
+        create_metadata_accounts_v3(cpi_ctx, datav2, true, false, None)?;
         Ok(())
     }
 }
