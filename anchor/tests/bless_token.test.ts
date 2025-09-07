@@ -40,18 +40,9 @@ describe("bless token tests.", () => {
     symbol: "tBless",
     uri: "https://raw.githubusercontent.com/blocklessnetwork/bless-token/refs/heads/devnet/metadata.json",
   };
-  // client.setWallet(new anchor.Wallet(wallet));
+  client.setWallet(new anchor.Wallet(wallet));
   const wallets = Array.from(Array(15), () => Keypair.generate());
   const userTokenAccount: PublicKey[] = [];
-
-  let mintAuth = Keypair.fromSecretKey(
-    Uint8Array.from([
-      230, 156, 190, 106, 226, 43, 241, 114, 207, 57, 81, 154, 128, 2, 68, 162,
-      89, 48, 136, 91, 137, 32, 205, 178, 93, 254, 12, 3, 255, 1, 179, 99, 124,
-      63, 21, 249, 157, 46, 142, 250, 81, 13, 151, 65, 216, 85, 136, 135, 93,
-      72, 249, 166, 178, 81, 194, 94, 71, 253, 171, 72, 207, 75, 155, 101,
-    ]),
-  );
 
   const log = async (signature: string): Promise<string> => {
     console.log(
@@ -60,76 +51,76 @@ describe("bless token tests.", () => {
     );
     return signature;
   };
-  // before("airdrop and create ata", async () => {
-  //   const tx = new Transaction();
-  //   console.log(provider.publicKey!.toBase58());
-  //   tx.instructions = [
-  //     ...[wallet, ...wallets].map((k) =>
-  //       SystemProgram.transfer({
-  //         fromPubkey: provider.publicKey!,
-  //         toPubkey: k.publicKey,
-  //         lamports: 0.2 * LAMPORTS_PER_SOL,
-  //       }),
-  //     ),
-  //   ];
-  //   await provider.sendAndConfirm!(tx, []).then((s) => {
-  //     log(s);
-  //     console.log("Air Drop Success.");
-  //   });
-  //   mint = await createMint(
-  //     connection,
-  //     wallet,
-  //     mintAuthority.publicKey,
-  //     mintAuthority.publicKey,
-  //     9,
-  //     mintKey,
-  //   );
-  //   for (const wal of wallets) {
-  //     let tokenAddr: Account = await getOrCreateAssociatedTokenAccount(
-  //       connection,
-  //       wal,
-  //       mint!,
-  //       wal.publicKey,
-  //     );
-  //     userTokenAccount.push(tokenAddr.address);
-  //   }
-  // });
+  before("airdrop and create ata", async () => {
+    const tx = new Transaction();
+    console.log(provider.publicKey!.toBase58());
+    tx.instructions = [
+      ...[wallet, ...wallets].map((k) =>
+        SystemProgram.transfer({
+          fromPubkey: provider.publicKey!,
+          toPubkey: k.publicKey,
+          lamports: 0.2 * LAMPORTS_PER_SOL,
+        }),
+      ),
+    ];
+    await provider.sendAndConfirm!(tx, []).then((s) => {
+      log(s);
+      console.log("Air Drop Success.");
+    });
+    mint = await createMint(
+      connection,
+      wallet,
+      mintAuthority.publicKey,
+      mintAuthority.publicKey,
+      9,
+      mintKey,
+    );
+    for (const wal of wallets) {
+      let tokenAddr: Account = await getOrCreateAssociatedTokenAccount(
+        connection,
+        wal,
+        mint!,
+        wal.publicKey,
+      );
+      userTokenAccount.push(tokenAddr.address);
+    }
+  });
 
-  // it("initial", async () => {
-  //   accts.walletCommunityRewards = userTokenAccount[10];
-  //   accts.walletEcosystemLiquidityprovisionTgtmarketing = userTokenAccount[11];
-  //   accts.walletFoundation = userTokenAccount[12];
-  //   accts.walletInvestor = userTokenAccount[13];
-  //   accts.walletTeamAdvisor = userTokenAccount[14];
-  //   await blessTokenClient.initialBlessTokenState(accts, mint!, mintAuthority, {
-  //     signer: wallet!.publicKey,
-  //     signerKeypair: [wallet!, mintAuthority],
-  //   });
+  it("initial", async () => {
+    accts.walletCommunityRewards = userTokenAccount[10];
+    accts.walletEcosystemLiquidityprovisionTgtmarketing = userTokenAccount[11];
+    accts.walletFoundation = userTokenAccount[12];
+    accts.walletInvestor = userTokenAccount[13];
+    accts.walletTeamAdvisor = userTokenAccount[14];
+    await blessTokenClient.initialBlessTokenState(accts, mint!, mintAuthority, {
+      signer: wallet!.publicKey,
+      signerKeypair: [wallet!, mintAuthority],
+    });
 
-  //   const sum = async (array: PublicKey[]) => {
-  //     let s = new anchor.BN(0);
-  //     for (const wallt of array) {
-  //       let am = (await getAccount(connection, wallt)).amount;
-  //       s = s.add(new anchor.BN(am));
-  //     }
-  //     return s;
-  //   };
-  //   let sumVal = await sum([
-  //     accts.walletCommunityRewards,
-  //     accts.walletEcosystemLiquidityprovisionTgtmarketing,
-  //     accts.walletFoundation,
-  //     accts.walletInvestor,
-  //     accts.walletTeamAdvisor,
-  //   ]);
-  //   console.log(sumVal.toString());
-  //   expect(sumVal.div(new anchor.BN(1_000_000_000)).toNumber()).eq(
-  //     10_000_000_000,
-  //   );
-  // });
+    const sum = async (array: PublicKey[]) => {
+      let s = new anchor.BN(0);
+      for (const wallt of array) {
+        let am = (await getAccount(connection, wallt)).amount;
+        s = s.add(new anchor.BN(am));
+      }
+      return s;
+    };
+    let sumVal = await sum([
+      accts.walletCommunityRewards,
+      accts.walletEcosystemLiquidityprovisionTgtmarketing,
+      accts.walletFoundation,
+      accts.walletInvestor,
+      accts.walletTeamAdvisor,
+    ]);
+    console.log(sumVal.toString());
+    expect(sumVal.div(new anchor.BN(1_000_000_000)).toNumber()).eq(
+      10_000_000_000,
+    );
+  });
 
-  // it("initial meta state", async () => {
-  //   await blessTokenClient.initialBlessTokenMetaState(mint!);
-  // });
+  it("initial meta state", async () => {
+    await blessTokenClient.initialBlessTokenMetaState(mint!);
+  });
 
   it("create metadata", async () => {
     const metaPda = blessTokenClient.getMetadataSync(mint!);
@@ -147,5 +138,6 @@ describe("bless token tests.", () => {
       signer: provider.wallet!.publicKey,
       signerKeypair: [provider.wallet!.payer!],
     });
+    console.log(hx);
   });
 });
