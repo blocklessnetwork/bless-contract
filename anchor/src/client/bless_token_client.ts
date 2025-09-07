@@ -1,6 +1,7 @@
 import {
   Keypair,
   PublicKey,
+  Transaction,
   TransactionInstruction,
   TransactionSignature,
 } from "@solana/web3.js";
@@ -115,12 +116,13 @@ export class BlsTokenClient {
     return this.baseClient.sendAndConfirm(versioned, txOptions.signerKeypair);
   }
 
-  public async createMetadata(
+  public async getCreateMetadataTx(
     blessMint: PublicKey,
+    admin: PublicKey,
     metaPda: PublicKey,
     meta: Metadata,
     txOptions: TxOptions = {},
-  ): Promise<TransactionSignature> {
+  ): Promise<Transaction> {
     let preIxs: TransactionInstruction[] = [];
     if (txOptions?.preInstructions) {
       preIxs = txOptions?.preInstructions;
@@ -132,11 +134,28 @@ export class BlsTokenClient {
         payer,
         blessMint,
         metadataProgram: TOKEN_METADATA_PROGRAM_ID,
-        admin: payer,
+        admin,
         metaPda,
       })
       .preInstructions(preIxs)
       .transaction();
+    return tx;
+  }
+
+  public async createMetadata(
+    blessMint: PublicKey,
+    admin: PublicKey,
+    metaPda: PublicKey,
+    meta: Metadata,
+    txOptions: TxOptions = {},
+  ): Promise<TransactionSignature> {
+    const tx = await this.getCreateMetadataTx(
+      blessMint,
+      admin,
+      metaPda,
+      meta,
+      txOptions,
+    );
     const versioned = await this.baseClient.getVersionedTransaction({
       tx,
       ...txOptions,
@@ -144,12 +163,13 @@ export class BlsTokenClient {
     return this.baseClient.sendAndConfirm(versioned, txOptions.signerKeypair);
   }
 
-  public async updateMetadata(
+  public async getUpdateMetadataTx(
     blessMint: PublicKey,
+    admin: PublicKey,
     metaPda: PublicKey,
     meta: Metadata,
     txOptions: TxOptions = {},
-  ): Promise<TransactionSignature> {
+  ): Promise<Transaction> {
     let preIxs: TransactionInstruction[] = [];
     if (txOptions?.preInstructions) {
       preIxs = txOptions?.preInstructions;
@@ -161,16 +181,57 @@ export class BlsTokenClient {
         payer,
         blessMint,
         metadataProgram: TOKEN_METADATA_PROGRAM_ID,
-        admin: payer,
+        admin,
         metaPda,
       })
       .preInstructions(preIxs)
       .transaction();
+    return tx;
+  }
+
+  public async updateMetadata(
+    blessMint: PublicKey,
+    admin: PublicKey,
+    metaPda: PublicKey,
+    meta: Metadata,
+    txOptions: TxOptions = {},
+  ): Promise<TransactionSignature> {
+    const tx = await this.getUpdateMetadataTx(
+      blessMint,
+      admin,
+      metaPda,
+      meta,
+      txOptions,
+    );
     const versioned = await this.baseClient.getVersionedTransaction({
       tx,
       ...txOptions,
     });
     return this.baseClient.sendAndConfirm(versioned, txOptions.signerKeypair);
+  }
+
+  public async getSetPendingAdminAccountTx(
+    blessMint: PublicKey,
+    admin: PublicKey,
+    pendingAdmin: PublicKey,
+    txOptions: TxOptions = {},
+  ): Promise<Transaction> {
+    let preIxs: TransactionInstruction[] = [];
+    if (txOptions?.preInstructions) {
+      preIxs = txOptions?.preInstructions;
+    }
+    const payer: PublicKey = txOptions.signer || this.baseClient.getSigner();
+    const tx = await this.baseClient.program.methods
+      .setPendingAdminAccount()
+      .accountsPartial({
+        payer,
+        admin,
+        pendingAdmin,
+        blessMint,
+      })
+      .preInstructions(preIxs)
+      .transaction();
+    return tx;
   }
 
   /**
@@ -184,8 +245,8 @@ export class BlsTokenClient {
    */
   public async setPendingAdminAccount(
     blessMint: PublicKey,
-    pendingAdmin: PublicKey,
     admin: PublicKey,
+    pendingAdmin: PublicKey,
     txOptions: TxOptions = {},
   ): Promise<TransactionSignature> {
     let preIxs: TransactionInstruction[] = [];
@@ -210,20 +271,11 @@ export class BlsTokenClient {
     return this.baseClient.sendAndConfirm(versioned, txOptions.signerKeypair);
   }
 
-  /**
-   *
-   * This instruction must be callable only by the key stored in pending_admin_account.
-   * Its logic should update the admin_account to the pending_admin_account's address
-   * and then clear the pending_admin_account to finalize the transfer.
-   * @param blessMint
-   * @param txOptions
-   * @returns
-   */
-  public async acceptAdmin(
+  public async getAcceptAdminTx(
     blessMint: PublicKey,
     pendingAdmin: PublicKey,
     txOptions: TxOptions = {},
-  ): Promise<TransactionSignature> {
+  ) {
     let preIxs: TransactionInstruction[] = [];
     if (txOptions?.preInstructions) {
       preIxs = txOptions?.preInstructions;
@@ -238,6 +290,24 @@ export class BlsTokenClient {
       })
       .preInstructions(preIxs)
       .transaction();
+    return tx;
+  }
+
+  /**
+   *
+   * This instruction must be callable only by the key stored in pending_admin_account.
+   * Its logic should update the admin_account to the pending_admin_account's address
+   * and then clear the pending_admin_account to finalize the transfer.
+   * @param blessMint
+   * @param txOptions
+   * @returns
+   */
+  public async acceptAdmin(
+    blessMint: PublicKey,
+    pendingAdmin: PublicKey,
+    txOptions: TxOptions = {},
+  ): Promise<TransactionSignature> {
+    const tx = await this.getAcceptAdminTx(blessMint, pendingAdmin, txOptions);
     const versioned = await this.baseClient.getVersionedTransaction({
       tx,
       ...txOptions,

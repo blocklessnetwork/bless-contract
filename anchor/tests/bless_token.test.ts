@@ -139,8 +139,8 @@ describe("bless token tests.", () => {
   it("setPendingAdmin", async () => {
     await blessTokenClient.setPendingAdminAccount(
       mint!,
-      pendingAdmin.publicKey,
       wallet!.publicKey,
+      pendingAdmin.publicKey,
       {
         signer: wallet!.publicKey,
         signerKeypair: [wallet!],
@@ -155,10 +155,16 @@ describe("bless token tests.", () => {
     if (isLocal(provider.connection.rpcEndpoint)) return;
     const metaPda = blessTokenClient.getMetadataSync(mint!);
     console.log(metaPda);
-    const hx = await blessTokenClient.createMetadata(mint!, metaPda, metadata, {
-      signer: provider.wallet!.publicKey,
-      signerKeypair: [provider.wallet!.payer!],
-    });
+    const hx = await blessTokenClient.createMetadata(
+      mint!,
+      provider.wallet!.publicKey,
+      metaPda,
+      metadata,
+      {
+        signer: provider.wallet!.publicKey,
+        signerKeypair: [provider.wallet!.payer!],
+      },
+    );
   });
 
   it("update metadata", async () => {
@@ -166,10 +172,16 @@ describe("bless token tests.", () => {
     if (isLocal(provider.connection.rpcEndpoint)) return;
     const metaPda = blessTokenClient.getMetadataSync(mint!);
     console.log(metaPda);
-    const hx = await blessTokenClient.updateMetadata(mint!, metaPda, metadata, {
-      signer: provider.wallet!.publicKey,
-      signerKeypair: [provider.wallet!.payer!],
-    });
+    const hx = await blessTokenClient.updateMetadata(
+      mint!,
+      provider.wallet!.publicKey,
+      metaPda,
+      metadata,
+      {
+        signer: provider.wallet!.publicKey,
+        signerKeypair: [provider.wallet!.payer!],
+      },
+    );
     console.log(hx);
   });
 
