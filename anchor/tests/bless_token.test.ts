@@ -16,6 +16,17 @@ import {
 import { BlessTokenAccounts } from "../src/client/bless_token_client";
 import { expect } from "chai";
 
+function isLocal(c: string): boolean {
+  if (
+    c.indexOf("http://127.0.0.1") >= 0 ||
+    c.indexOf("http://localhost") >= 0
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 describe("bless token tests.", () => {
   const client = new BlsClient();
   const provider = client.provider;
@@ -24,6 +35,7 @@ describe("bless token tests.", () => {
   const connection = client.connection;
   const blessTokenClient = client.blessTokenClient;
   const accts = new BlessTokenAccounts();
+  const pendingAdmin = Keypair.generate();
   let mintKey = Keypair.fromSecretKey(
     Uint8Array.from([
       54, 85, 164, 158, 45, 106, 125, 208, 143, 84, 31, 75, 79, 226, 133, 229,
@@ -52,10 +64,12 @@ describe("bless token tests.", () => {
     return signature;
   };
   before("airdrop and create ata", async () => {
+    // if localhost, do airdrop
+    if (!isLocal(provider.connection.rpcEndpoint)) return;
     const tx = new Transaction();
     console.log(provider.publicKey!.toBase58());
     tx.instructions = [
-      ...[wallet, ...wallets].map((k) =>
+      ...[wallet, pendingAdmin, ...wallets].map((k) =>
         SystemProgram.transfer({
           fromPubkey: provider.publicKey!,
           toPubkey: k.publicKey,
@@ -122,7 +136,23 @@ describe("bless token tests.", () => {
     await blessTokenClient.initialBlessTokenMetaState(mint!);
   });
 
+  it("setPendingAdmin", async () => {
+    await blessTokenClient.setPendingAdminAccount(
+      mint!,
+      pendingAdmin.publicKey,
+      wallet!.publicKey,
+      {
+        signer: wallet!.publicKey,
+        signerKeypair: [wallet!],
+      },
+    );
+    const state = await blessTokenClient.getBlessTokenMetaState(mint!);
+    expect(state.pendingAdmin.toBase58()).eq(pendingAdmin.publicKey.toBase58());
+  });
+
   it("create metadata", async () => {
+    // localnet have meta prorgam, can't test.
+    if (isLocal(provider.connection.rpcEndpoint)) return;
     const metaPda = blessTokenClient.getMetadataSync(mint!);
     console.log(metaPda);
     const hx = await blessTokenClient.createMetadata(mint!, metaPda, metadata, {
@@ -132,6 +162,8 @@ describe("bless token tests.", () => {
   });
 
   it("update metadata", async () => {
+    // localnet have meta prorgam, can't test.
+    if (isLocal(provider.connection.rpcEndpoint)) return;
     const metaPda = blessTokenClient.getMetadataSync(mint!);
     console.log(metaPda);
     const hx = await blessTokenClient.updateMetadata(mint!, metaPda, metadata, {
@@ -139,5 +171,14 @@ describe("bless token tests.", () => {
       signerKeypair: [provider.wallet!.payer!],
     });
     console.log(hx);
+  });
+
+  it("accept admin", async () => {
+    await blessTokenClient.acceptAdmin(mint!, pendingAdmin.publicKey, {
+      signer: wallet.publicKey,
+      signerKeypair: [wallet, pendingAdmin],
+    });
+    const state = await blessTokenClient.getBlessTokenMetaState(mint!);
+    expect(state.admin.toBase58()).eq(pendingAdmin.publicKey.toBase58());
   });
 });
