@@ -3,6 +3,9 @@ use anchor_spl::token::{
     self, spl_token::instruction::AuthorityType, Mint, MintTo, SetAuthority, Token, TokenAccount,
 };
 
+mod meta;
+pub use meta::*;
+
 use crate::{
     errors::BlsError, BlessTokenState, MINT_KEY, SEED_BLESS_CONTRACT_STATE,
     WALLET_COMMUNITY_REWARDS_FEE, WALLET_ECOSYSTEM_LIQUIDITYPROVISION_TGTMARKETING_FEE,

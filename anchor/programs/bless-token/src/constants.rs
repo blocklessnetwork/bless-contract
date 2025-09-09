@@ -3,6 +3,9 @@ use anchor_lang::prelude::*;
 #[constant]
 pub const SEED_BLESS_CONTRACT_STATE: &str = "bless_contract_state";
 
+#[constant]
+pub const SEED_BLESS_TOKEN_META_STATE: &str = "bless_token_meta_state";
+
 pub const BITMAP_SIZE: usize = 86;
 
 pub const WALLET_INVESTOR_FEE: u64 = 1625_000_000_000_000_000;

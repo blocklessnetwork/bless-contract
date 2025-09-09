@@ -10,4 +10,7 @@ pub enum BlsError {
 
     #[msg("Invalid mint token.")]
     InvalidMintToken,
+
+    #[msg("Invalid pending admin.")]
+    InvalidPendingAdmin,
 }
