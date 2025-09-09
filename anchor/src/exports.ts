@@ -14,7 +14,11 @@ export const BLESSTOKEN_PROGRAM_ID = new PublicKey(
 
 export type BlessTokenProgram = Program<BlessToken>;
 
-export let DEV_BLESSTOKEN_PROGRAM_ID: PublicKey | null = null;
+let DevProgramId: PublicKey | null = null;
+
+export function setDevProgramId(key: PublicKey | null) {
+  DevProgramId = key;
+}
 
 // This is a helper function to get the Bless Token Anchor program.
 export function getBlessTokenProgram(
@@ -35,9 +39,7 @@ export function getBlessTokenProgramId(cluster: Cluster) {
   switch (cluster) {
     case "devnet":
     case "testnet":
-      if (DEV_BLESSTOKEN_PROGRAM_ID != null) {
-        return DEV_BLESSTOKEN_PROGRAM_ID;
-      }
+      if (DevProgramId != null) return DevProgramId;
       // This is the program ID for the Bless Token program on devnet and testnet.
       return new PublicKey("uqmCn7C32qa1MvbiC6MxLnnVVLFnutx3tJ7sdDT73g2");
     case "mainnet-beta":
