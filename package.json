@@ -1,6 +1,6 @@
 {
   "name": "@blessnetwork/bless-contract",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "type": "module",
   "files": [
     "dist"
