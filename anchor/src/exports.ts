@@ -39,7 +39,7 @@ export function getBlessTokenProgramId(cluster: Cluster) {
         return DEV_BLESSTOKEN_PROGRAM_ID;
       }
       // This is the program ID for the Bless Token program on devnet and testnet.
-      return new PublicKey("H5vW4kkhaFhR5CBAyL46rREFkWfCD4cVwTw4xXZ6wtAy");
+      return new PublicKey("uqmCn7C32qa1MvbiC6MxLnnVVLFnutx3tJ7sdDT73g2");
     case "mainnet-beta":
     default:
       return BLESSTOKEN_PROGRAM_ID;
