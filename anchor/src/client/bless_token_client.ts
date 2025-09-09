@@ -119,10 +119,10 @@ export class BlsTokenClient {
   public async getCreateMetadataTx(
     blessMint: PublicKey,
     admin: PublicKey,
-    metaPda: PublicKey,
     meta: Metadata,
     txOptions: TxOptions = {},
   ): Promise<Transaction> {
+    const metaPda = this.getMetadataSync(blessMint);
     let preIxs: TransactionInstruction[] = [];
     if (txOptions?.preInstructions) {
       preIxs = txOptions?.preInstructions;
@@ -145,14 +145,12 @@ export class BlsTokenClient {
   public async createMetadata(
     blessMint: PublicKey,
     admin: PublicKey,
-    metaPda: PublicKey,
     meta: Metadata,
     txOptions: TxOptions = {},
   ): Promise<TransactionSignature> {
     const tx = await this.getCreateMetadataTx(
       blessMint,
       admin,
-      metaPda,
       meta,
       txOptions,
     );
@@ -166,10 +164,10 @@ export class BlsTokenClient {
   public async getUpdateMetadataTx(
     blessMint: PublicKey,
     admin: PublicKey,
-    metaPda: PublicKey,
     meta: Metadata,
     txOptions: TxOptions = {},
   ): Promise<Transaction> {
+    const metaPda = this.getMetadataSync(blessMint);
     let preIxs: TransactionInstruction[] = [];
     if (txOptions?.preInstructions) {
       preIxs = txOptions?.preInstructions;
@@ -192,14 +190,12 @@ export class BlsTokenClient {
   public async updateMetadata(
     blessMint: PublicKey,
     admin: PublicKey,
-    metaPda: PublicKey,
     meta: Metadata,
     txOptions: TxOptions = {},
   ): Promise<TransactionSignature> {
     const tx = await this.getUpdateMetadataTx(
       blessMint,
       admin,
-      metaPda,
       meta,
       txOptions,
     );
@@ -249,21 +245,12 @@ export class BlsTokenClient {
     pendingAdmin: PublicKey,
     txOptions: TxOptions = {},
   ): Promise<TransactionSignature> {
-    let preIxs: TransactionInstruction[] = [];
-    if (txOptions?.preInstructions) {
-      preIxs = txOptions?.preInstructions;
-    }
-    const payer: PublicKey = txOptions.signer || this.baseClient.getSigner();
-    const tx = await this.baseClient.program.methods
-      .setPendingAdminAccount()
-      .accountsPartial({
-        payer,
-        admin,
-        pendingAdmin,
-        blessMint,
-      })
-      .preInstructions(preIxs)
-      .transaction();
+    const tx = await this.getSetPendingAdminAccountTx(
+      blessMint,
+      admin,
+      pendingAdmin,
+      txOptions,
+    );
     const versioned = await this.baseClient.getVersionedTransaction({
       tx,
       ...txOptions,
@@ -290,6 +277,7 @@ export class BlsTokenClient {
       })
       .preInstructions(preIxs)
       .transaction();
+
     return tx;
   }
 

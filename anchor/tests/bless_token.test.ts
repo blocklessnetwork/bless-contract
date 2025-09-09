@@ -158,7 +158,6 @@ describe("bless token tests.", () => {
     const hx = await blessTokenClient.createMetadata(
       mint!,
       provider.wallet!.publicKey,
-      metaPda,
       metadata,
       {
         signer: provider.wallet!.publicKey,
@@ -175,7 +174,6 @@ describe("bless token tests.", () => {
     const hx = await blessTokenClient.updateMetadata(
       mint!,
       provider.wallet!.publicKey,
-      metaPda,
       metadata,
       {
         signer: provider.wallet!.publicKey,
