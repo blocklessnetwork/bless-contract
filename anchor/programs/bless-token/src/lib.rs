@@ -9,7 +9,7 @@ pub use constants::*;
 pub use context::*;
 pub use states::*;
 
-declare_id!("uqmCn7C32qa1MvbiC6MxLnnVVLFnutx3tJ7sdDT73g2");
+declare_id!("12P2dRDRBw5anmVTPmJELjTCgFeAMmbHM96SXsMZzKkK");
 
 #[program]
 pub mod bless_token {
