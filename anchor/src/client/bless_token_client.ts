@@ -116,6 +116,45 @@ export class BlsTokenClient {
     return this.baseClient.sendAndConfirm(versioned, txOptions.signerKeypair);
   }
 
+  public async getDisableMintTx(
+    blessMint: PublicKey,
+    currentAuthority: PublicKey,
+    txOptions: TxOptions = {},
+  ): Promise<Transaction> {
+    let preIxs: TransactionInstruction[] = [];
+    if (txOptions?.preInstructions) {
+      preIxs = txOptions?.preInstructions;
+    }
+    const payer: PublicKey = txOptions.signer || this.baseClient.getSigner();
+    const tx = await this.baseClient.program.methods
+      .disableBlessMint()
+      .accountsPartial({
+        payer,
+        blessMint,
+        currentAuthority,
+      })
+      .preInstructions(preIxs)
+      .transaction();
+    return tx;
+  }
+
+  public async disableMint(
+    blessMint: PublicKey,
+    currentAuthority: PublicKey,
+    txOptions: TxOptions = {},
+  ): Promise<TransactionSignature> {
+    const tx = await this.getDisableMintTx(
+      blessMint,
+      currentAuthority,
+      txOptions,
+    );
+    const versioned = await this.baseClient.getVersionedTransaction({
+      tx,
+      ...txOptions,
+    });
+    return this.baseClient.sendAndConfirm(versioned, txOptions.signerKeypair);
+  }
+
   public async getCreateMetadataTx(
     blessMint: PublicKey,
     admin: PublicKey,
