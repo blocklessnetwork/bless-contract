@@ -4,7 +4,7 @@ use anchor_spl::{
         create_metadata_accounts_v3, mpl_token_metadata::types::DataV2,
         update_metadata_accounts_v2, CreateMetadataAccountsV3, Metadata, UpdateMetadataAccountsV2,
     },
-    token::Mint,
+    token::{self, spl_token::instruction::AuthorityType, Mint, SetAuthority, Token},
 };
 
 use crate::{
@@ -242,6 +242,67 @@ impl<'info> BlessTokenMetaSetMetadata<'info> {
             uses: None,
         };
         create_metadata_accounts_v3(cpi_ctx, datav2, true, false, None)?;
+        Ok(())
+    }
+}
+
+#[derive(Accounts)]
+pub struct BlessTokenDisableMint<'info> {
+    #[account(
+        mut,
+        // only admin can disable mint authority.
+        constraint = payer.key() == bless_meta_state.admin
+    )]
+    pub payer: Signer<'info>,
+
+    #[account(mut)]
+    pub bless_mint: Account<'info, Mint>,
+
+    #[account(
+        mut,
+        seeds = [SEED_BLESS_CONTRACT_STATE.as_bytes(), bless_mint.key().as_ref()],
+        bump = bless_state.bump,
+    )]
+    pub bless_state: Account<'info, BlessTokenState>,
+
+    #[account(
+        mut,
+        seeds = [SEED_BLESS_TOKEN_META_STATE.as_bytes(), bless_state.key().as_ref()],
+        bump = bless_meta_state.bump,
+    )]
+    pub bless_meta_state: Account<'info, BlessTokenMetaState>,
+
+    pub token_program: Program<'info, Token>,
+}
+
+impl<'info> BlessTokenDisableMint<'info> {
+    pub fn disable_mint(&mut self) -> Result<()> {
+        let bless_token_key = Pubkey::from_str_const(crate::MINT_KEY);
+        if self.bless_mint.key() != bless_token_key {
+            return Err(BlsError::InvalidMintToken.into());
+        }
+        let mint_authority = self
+            .bless_mint
+            .mint_authority
+            .ok_or(BlsError::MintAuthorityAlreadyDisabled)?;
+        if mint_authority != self.bless_state.key() {
+            return Err(BlsError::InvalidMintAuthority.into());
+        }
+        let mint_bytes = self.bless_mint.key();
+        let signer_seeds: &[&[&[u8]]] = &[&[
+            SEED_BLESS_CONTRACT_STATE.as_bytes(),
+            mint_bytes.as_ref(),
+            &[self.bless_state.bump],
+        ]];
+        let cpi_ctx = CpiContext::new_with_signer(
+            self.token_program.to_account_info(),
+            SetAuthority {
+                current_authority: self.bless_state.to_account_info(),
+                account_or_mint: self.bless_mint.to_account_info(),
+            },
+            signer_seeds,
+        );
+        token::set_authority(cpi_ctx, AuthorityType::MintTokens, None)?;
         Ok(())
     }
 }

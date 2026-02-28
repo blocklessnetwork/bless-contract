@@ -11,6 +11,7 @@ import {
   Account,
   createMint,
   getAccount,
+  getMint,
   getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
 import { BlessTokenAccounts } from "../src/client/bless_token_client";
@@ -190,5 +191,28 @@ describe("bless token tests.", () => {
     });
     const state = await blessTokenClient.getBlessTokenMetaState(mint!);
     expect(state.admin.toBase58()).eq(pendingAdmin.publicKey.toBase58());
+  });
+
+  it("disable mint should fail when current authority is invalid", async () => {
+    let hasExpectedError = false;
+    try {
+      await blessTokenClient.disableMint(mint!, {
+        signer: pendingAdmin.publicKey,
+        signerKeypair: [pendingAdmin, wallet],
+      });
+    } catch (e) {
+      const msg = String(e);
+      hasExpectedError =
+        msg.includes("Invalid mint authority") ||
+        msg.includes("InvalidMintAuthority");
+    }
+    expect(hasExpectedError).eq(true);
+
+    const [blessStatePda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("bless_contract_state"), mint.toBuffer()],
+      client.programId,
+    );
+    const mintInfo = await getMint(connection, mint);
+    expect(mintInfo.mintAuthority?.toBase58()).eq(blessStatePda.toBase58());
   });
 });

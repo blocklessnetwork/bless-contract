@@ -16,8 +16,11 @@ no-entrypoint = []
 no-idl = []
 no-log-ix-name = []
 idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+anchor-debug = []
+custom-panic = []
+custom-heap = []
 
 
 [dependencies]
-anchor-lang = "0.31.1"
-anchor-spl = {version = "0.31.1", features = ["metadata"] }
+anchor-lang = "0.32.1"
+anchor-spl = {version = "0.32.1", features = ["metadata"] }
