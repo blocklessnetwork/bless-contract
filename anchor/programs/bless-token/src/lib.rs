@@ -22,6 +22,11 @@ pub mod bless_token {
         ctx.accounts.init(bump)
     }
 
+    /// Permanently disable mint authority for the bless token.
+    pub fn disable_bless_mint(ctx: Context<BlessTokenDisableMint>) -> Result<()> {
+        ctx.accounts.disable_mint()
+    }
+
     /// Initializes the bless meta state with the payer designated as the admin.
     /// This function can only be called once.
     pub fn initialize_bless_token_meta_state(

@@ -13,4 +13,10 @@ pub enum BlsError {
 
     #[msg("Invalid pending admin.")]
     InvalidPendingAdmin,
+
+    #[msg("Invalid mint authority.")]
+    InvalidMintAuthority,
+
+    #[msg("Mint authority already disabled.")]
+    MintAuthorityAlreadyDisabled,
 }
