@@ -196,7 +196,7 @@ describe("bless token tests.", () => {
   it("disable mint should fail when current authority is invalid", async () => {
     let hasExpectedError = false;
     try {
-      await blessTokenClient.disableMint(mint!, wallet.publicKey, {
+      await blessTokenClient.disableMint(mint!, {
         signer: pendingAdmin.publicKey,
         signerKeypair: [pendingAdmin, wallet],
       });

@@ -258,10 +258,6 @@ pub struct BlessTokenDisableMint<'info> {
     #[account(mut)]
     pub bless_mint: Account<'info, Mint>,
 
-    /// current authority of the mint
-    #[account(mut)]
-    pub current_authority: Signer<'info>,
-
     #[account(
         mut,
         seeds = [SEED_BLESS_CONTRACT_STATE.as_bytes(), bless_mint.key().as_ref()],
@@ -289,15 +285,22 @@ impl<'info> BlessTokenDisableMint<'info> {
             .bless_mint
             .mint_authority
             .ok_or(BlsError::MintAuthorityAlreadyDisabled)?;
-        if mint_authority != self.current_authority.key() {
+        if mint_authority != self.bless_state.key() {
             return Err(BlsError::InvalidMintAuthority.into());
         }
-        let cpi_ctx = CpiContext::new(
+        let mint_bytes = self.bless_mint.key();
+        let signer_seeds: &[&[&[u8]]] = &[&[
+            SEED_BLESS_CONTRACT_STATE.as_bytes(),
+            mint_bytes.as_ref(),
+            &[self.bless_state.bump],
+        ]];
+        let cpi_ctx = CpiContext::new_with_signer(
             self.token_program.to_account_info(),
             SetAuthority {
-                current_authority: self.current_authority.to_account_info(),
+                current_authority: self.bless_state.to_account_info(),
                 account_or_mint: self.bless_mint.to_account_info(),
             },
+            signer_seeds,
         );
         token::set_authority(cpi_ctx, AuthorityType::MintTokens, None)?;
         Ok(())
