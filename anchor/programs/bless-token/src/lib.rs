@@ -17,9 +17,15 @@ pub mod bless_token {
     use super::*;
 
     /// initial bless token state function
-    pub fn initialize_bless_token(ctx: Context<InitBlessToken>) -> Result<()> {
-        let bump = ctx.bumps.bless_state;
-        ctx.accounts.init(bump)
+    /// Plan B: disable the instruction to limit the size of the contract.
+    // pub fn initialize_bless_token(ctx: Context<InitBlessToken>) -> Result<()> {
+    //     let bump = ctx.bumps.bless_state;
+    //     ctx.accounts.init(bump)
+    // }
+
+    /// Permanently disable mint authority for the bless token.
+    pub fn disable_bless_mint(ctx: Context<BlessTokenDisableMint>) -> Result<()> {
+        ctx.accounts.disable_mint()
     }
 
     /// Initializes the bless meta state with the payer designated as the admin.
